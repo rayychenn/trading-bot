@@ -12,37 +12,61 @@ client = Client(var.API,var.APIKey)
 #klines = client.get_historical_klines(var.Pair, Client.KLINE_INTERVAL_1DAY, var.StartDate)
 
 klines = [[0,0,0,0,1],[0,0,0,0,2],[0,0,0,0,3],[0,0,0,0,4],[0,0,0,0,5],[0,0,0,0,6],[0,0,0,0,7],[0,0,0,0,8],[0,0,0,0,9],[0,0,0,0,10],
-         [0,0,0,0,11],[0,0,0,0,12],[0,0,0,0,13],[0,0,0,0,14],[0,0,0,0,15],[0,0,0,0,16],[0,0,0,0,17],[0,0,0,0,18],[0,0,0,0,19],[0,0,0,0,20]]
+          [0,0,0,0,11],[0,0,0,0,12],[0,0,0,0,13],[0,0,0,0,14],[0,0,0,0,15],[0,0,0,0,16],[0,0,0,0,17],[0,0,0,0,18],[0,0,0,0,19],[0,0,0,0,20]]
 
-
-print("You are trading the",var.BigMA,"vs",var.SmallMA,"moving average on"
+print("You are trading the",var.BigEMA,"vs",var.SmallEMA,"exponential moving average on"
       , var.Pair, " since ",var.StartDate, " and ", dollar , " dollars.")
 
 old_direction = 'Null'
 
-for i in range(var.BigMA,len(klines)):
-    ##Calculate the small Simple Moving Average klines
+for i in range(var.BigEMA,len(klines)):
+    ##Calculate SMA for shorter time period.
     smallMA = 0
-    for each in klines[i-var.SmallMA:i]:
+    for each in klines[i - var.SmallEMA:i]:
         smallMA += float(each[4])
-    smallMA = smallMA/var.SmallMA
+    smallMA = smallMA / var.SmallEMA
 
+    ##Calculate SMA for longer time period.
     bigMA = 0
-    for each in klines[i-var.BigMA:i]:
+    for each in klines[i - var.BigEMA:i]:
         bigMA += float(each[4])
-    bigMA = bigMA/var.BigMA
+    bigMA = bigMA / var.BigEMA
 
-    if bigMA < smallMA:
+
+    if old_direction == 'Null':
+        SmallEMA = smallMA
+        smallWeight = var.Smoothing / (var.SmallEMA + 1)
+
+        BigEMA = bigMA
+        bigWeight = var.Smoothing / (var.BigEMA + 1)
+    elif old_direction != 'Null':
+        ##Calculate EMA for shorter time period.
+        SmallEMA = (float(klines[i][4]) * smallWeight) + SmallEMA *(1-smallWeight)
+        ##Calculate EMA for shorter time period.
+        BigEMA = (float(klines[i][4]) * bigWeight) + BigEMA *(1-bigWeight)
+
+    print("SmallMAs")
+    print(smallMA)
+    print((float(klines[i][4]) * smallWeight) + SmallEMA *(1-smallWeight))
+    print("BigMAs")
+    print(bigMA)
+    print((float(klines[i][4]) * bigWeight) + BigEMA *(1-bigWeight))
+    print(klines[i][4])
+    if (BigEMA < SmallEMA) and (float(klines[i][4]) > SmallEMA):
         direction = 'Positive'
-
-    if bigMA > smallMA:
+    elif BigEMA < SmallEMA and old_direction == 'Null':
+        direction = 'Positive'
+    if (BigEMA > SmallEMA) and (float(klines[i][4]) < BigEMA):
         direction = 'Negative'
-    if old_direction != direction:
+    elif BigEMA > SmallEMA and old_direction == 'Null':
+        direction = 'Negative'
+    print(direction)
+    if old_direction != direction:# and i > 2*var.BigEMA:
         if old_direction == 'Null':
             old_direction = direction
         else:
             # Determine the date and time of the trade
-            date = datetime.utcfromtimestamp(float(klines[i][6])/1000).strftime('%Y-%m-%d %H:%M:%S')
+            date = datetime.utcfromtimestamp(float(each[6])/1000).strftime('%Y-%m-%d %H:%M:%S')
             if old_direction == 'Positive' and position != 0:
                 print("Sell at " + str(klines[i][4]))
                 dollar += position * float(klines[i][4]) * (1-var.TakerFee)
