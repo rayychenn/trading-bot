@@ -1,4 +1,22 @@
-list2 = [0,1,2,3,4,5]
+from binance.client import Client
+import variables as var
 
-for i in range(2-2,2):
-    print(list2[i])
+client = Client(var.API,var.APIKey)
+
+klines = client.get_historical_klines(var.Pair, Client.KLINE_INTERVAL_1DAY, var.StartDate)
+
+print(klines)
+test_klines = [[0,0,0,0,1],[0,0,0,0,2],[0,0,0,0,3],[0,0,0,0,4],[0,0,0,0,5],[0,0,0,0,6],[0,0,0,0,7],[0,0,0,0,8],[0,0,0,0,9],[0,0,0,0,10],
+          [0,0,0,0,11],[0,0,0,0,12],[0,0,0,0,13],[0,0,0,0,14],[0,0,0,0,15],[0,0,0,0,16],[0,0,0,0,17],[0,0,0,0,18],[0,0,0,0,19],[0,0,0,0,20]]
+
+# print("SmallMAs")
+# print(smallMA)
+# print((float(klines[i][4]) * smallWeight),'small1')
+# print(SmallEMA *(1-smallWeight),'small2')
+# print(SmallEMA,'is smallEMA')
+# print("BigMAs")
+# print(bigMA)
+# print((float(klines[i][4]) * bigWeight),'big1')
+# print(BigEMA *(1-bigWeight),'big2')
+# print(BigEMA,'is bigEMA')
+# print('at t =',klines[i][4])

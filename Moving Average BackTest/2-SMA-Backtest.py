@@ -9,10 +9,10 @@ position = 0
 ##Setup the client with your APIs stored in the variables.py folder
 client = Client(var.API,var.APIKey)
 
-#klines = client.get_historical_klines(var.Pair, Client.KLINE_INTERVAL_1DAY, var.StartDate)
+klines = client.get_historical_klines(var.Pair, Client.KLINE_INTERVAL_1DAY, var.StartDate)
 
-klines = [[0,0,0,0,1],[0,0,0,0,2],[0,0,0,0,3],[0,0,0,0,4],[0,0,0,0,5],[0,0,0,0,6],[0,0,0,0,7],[0,0,0,0,8],[0,0,0,0,9],[0,0,0,0,10],
-         [0,0,0,0,11],[0,0,0,0,12],[0,0,0,0,13],[0,0,0,0,14],[0,0,0,0,15],[0,0,0,0,16],[0,0,0,0,17],[0,0,0,0,18],[0,0,0,0,19],[0,0,0,0,20]]
+#klines = [[0,0,0,0,1],[0,0,0,0,2],[0,0,0,0,3],[0,0,0,0,4],[0,0,0,0,5],[0,0,0,0,6],[0,0,0,0,7],[0,0,0,0,8],[0,0,0,0,9],[0,0,0,0,10],
+#         [0,0,0,0,11],[0,0,0,0,12],[0,0,0,0,13],[0,0,0,0,14],[0,0,0,0,15],[0,0,0,0,16],[0,0,0,0,17],[0,0,0,0,18],[0,0,0,0,19],[0,0,0,0,20]]
 
 
 print("You are trading the",var.BigMA,"vs",var.SmallMA,"moving average on"
@@ -20,6 +20,7 @@ print("You are trading the",var.BigMA,"vs",var.SmallMA,"moving average on"
 
 old_direction = 'Null'
 
+returns = []
 for i in range(var.BigMA,len(klines)):
     ##Calculate the small Simple Moving Average klines
     smallMA = 0
@@ -49,9 +50,11 @@ for i in range(var.BigMA,len(klines)):
                 position = 0
                 if float(klines[i][4]) > buy:
                     gain = round((10000*(float(klines[i][4])-buy)/float(klines[i][4])))
+                    returns += [gain/100]
                     print("Profit = " + str(float(klines[i][4]) - buy) + " Or " + str(gain/100) + "% at " + date)
                 else:
                     loss = round((10000*(float(klines[i][4])-buy)/float(klines[i][4])))
+                    returns += [loss/100]
                     print("Loss = " + str(float(klines[i][4]) - buy) + " Or " + str(loss/100) + "% at " + date)
                 buy = 0
             elif old_direction != 'Positive':
@@ -75,3 +78,5 @@ if position != 0:
 print("Dollar is ",str(dollar))
 
 
+# Define a new variable for volatility
+print(returns)
